@@ -7,17 +7,16 @@ export default class OrdersList extends Component {
     super(props);
     this.onChangeSearchOrderId = this.onChangeSearchOrderId.bind(this);
     this.retrieveOrders = this.retrieveOrders.bind(this);
-    this.retrieveOrderItemsinOrder = this.retrieveOrderItemsinOrder.bind(this);
     this.refreshList = this.refreshList.bind(this);
     this.setActiveOrderAndOrderItems = this.setActiveOrderAndOrderItems.bind(this);
-    this.searchOrderId = this.searchOrderId.bind(this);
+    this.searchOrderIdandOrderItems = this.searchOrderIdandOrderItems.bind(this);
 
     this.state = {
       orders: [],
       currentOrder: "",
       currentOrderItemsInOrder: [],
       currentIndex: -1,
-      searchOrderId: ""
+      searchOrderIdandOrderItems: ""
     };
   }
 
@@ -26,10 +25,10 @@ export default class OrdersList extends Component {
   }
 
   onChangeSearchOrderId(e) {
-    const searchOrderId = e.target.value;
+    const searchOrderIdandOrderItems = e.target.value;
 
     this.setState({
-        searchOrderId: searchOrderId
+        searchOrderIdandOrderItems: searchOrderIdandOrderItems
     });
   }
 
@@ -71,30 +70,17 @@ export default class OrdersList extends Component {
     ;
   }
 
-  retrieveOrderItemsinOrder(){
+  async searchOrderIdandOrderItems() {
 
-    let orderId = this.state.currentOrder.orderId;
-    
-    AdminDataService.getOrderItemsByOrderId(orderId)
-      .then(response => {
-      this.setState({
-        currentOrderItemsInOrder: response.data.data
-      });
-      console.log(response.data.data);
-      })
-      .catch(e => {
-      console.log(e);
-      });
-  };
+    const result = await AdminDataService.getOrderItemsByOrderId(this.state.searchOrderIdandOrderItems);
 
-  searchOrderId() {
     this.setState({
       currentOrder: null,
-      currentOrderItemsInOrder: null,
+      currentOrderItemsInOrder: result.data.data,
       currentIndex: -1
     });
 
-    AdminDataService.getOrderByOrderId(this.state.searchOrderId)
+    AdminDataService.getOrderByOrderId(this.state.searchOrderIdandOrderItems)
       .then(response => {
         this.setState({
             currentOrder: response.data.data
@@ -104,12 +90,12 @@ export default class OrdersList extends Component {
       .catch(e => {
         console.log(e);
       });
+
   }
 
-
-
+  
   render() {
-    const { searchOrderId, orders, currentOrderItemsInOrder, currentOrder, currentIndex } = this.state;
+    const { searchOrderIdandOrderItems, orders, currentOrderItemsInOrder, currentOrder, currentIndex } = this.state;
 
     return (
       <div className="list row">
@@ -119,14 +105,14 @@ export default class OrdersList extends Component {
               type="number"
               className="form-control"
               placeholder="Search by Order Id"
-              value={searchOrderId}
+              value={searchOrderIdandOrderItems}
               onChange={this.onChangeSearchOrderId}
             />
             <div className="input-group-append">
               <button
                 className="btn btn-outline-secondary"
                 type="button"
-                onClick={() => {this.searchOrderId(); this.retrieveOrderItemsinOrder();}}
+                onClick={() => {this.searchOrderIdandOrderItems()}}
               >
                 Search
               </button>
@@ -144,7 +130,7 @@ export default class OrdersList extends Component {
                     "list-group-item " +
                     (index === currentIndex ? "active" : "")
                   }
-                  onClick={() => {this.setActiveOrderAndOrderItems(order, index);}}
+                  onClick={() => {this.setActiveOrderAndOrderItems(order, index)}}
                   key={index}
                 >
                   {order.orderId}
